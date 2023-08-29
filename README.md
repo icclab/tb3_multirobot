@@ -13,7 +13,7 @@ As an alternative, under the scripts folder, there is a basic Python3 script Bas
 
 # tb3_multirobot SLAM
 
-Similar to the simple navigation and localization SLAM functionalities are available using one single joint map and a single RViZ. 
+Similar to the simple navigation and localization, SLAM functionalities are available using one single joint map and a single RViZ for two tb3s. 
 
 To launch the project with SLAM functionalities we need the following project to merge the two maps into one single map https://github.com/icclab/mapMergeForMultiRobotMapping-ROS2
 Clone and build also that repo into your workspace. The configuration of the map topics is pretty simple in the merge_map.py file.
