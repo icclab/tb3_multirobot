@@ -36,13 +36,13 @@ def generate_launch_description():
     log_level = LaunchConfiguration('log_level')
 
     # Variables
-    lifecycle_nodes = ['map_saver']
+    lifecycle_nodes = ['map_saver', 'map_merger']
 
     # Getting directories and launch-files
     bringup_dir = get_package_share_directory('tb3_multirobot')
-    slam_toolbox_dir = get_package_share_directory('slam_toolbox')
+    #slam_toolbox_dir = get_package_share_directory('slam_toolbox')
     #slam_launch_file = os.path.join(slam_toolbox_dir, 'launch', 'online_sync_launch.py')
-    slam_launch_file = os.path.join(bringup_dir, 'launch', 'slam_toolbox_online_sync_launch.py')
+    slam_launch_file = os.path.join(bringup_dir, 'launch', 'two_slam_toolbox_online_sync_launch.py')
 
     # Create our own temporary YAML files that include substitutions
     param_substitutions = {
@@ -87,11 +87,19 @@ def generate_launch_description():
     start_map_saver_server_cmd = Node(
             package='nav2_map_server',
             executable='map_saver_server',
+            name='map_server',
             output='screen',
             respawn=use_respawn,
             respawn_delay=2.0,
             arguments=['--ros-args', '--log-level', log_level],
             parameters=[configured_params])
+        
+    start_map_merger_cmd = Node(
+            name='map_merger',
+            package='merge_map',
+            executable='merge_map',
+            output='screen',
+            parameters=[{'use_sim_time': True}])
 
     start_lifecycle_manager_cmd = Node(
             package='nav2_lifecycle_manager',
@@ -103,11 +111,13 @@ def generate_launch_description():
                         {'autostart': autostart},
                         {'node_names': lifecycle_nodes}])
 
+
     # If the provided param file doesn't have slam_toolbox params, we must remove the 'params_file'
     # LaunchConfiguration, or it will be passed automatically to slam_toolbox and will not load
     # the default file
     has_slam_toolbox_params = HasNodeParams(source_file=params_file,
                                             node_name='slam_toolbox')
+    
 
     start_slam_toolbox_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(slam_launch_file),
@@ -130,8 +140,9 @@ def generate_launch_description():
     ld.add_action(declare_use_respawn_cmd)
     ld.add_action(declare_log_level_cmd)
 
-    # Running Map Saver Server
+    # Running Map Saver Server and Map Merger
     ld.add_action(start_map_saver_server_cmd)
+    ld.add_action(start_map_merger_cmd)
     ld.add_action(start_lifecycle_manager_cmd)
 
     # Running SLAM Toolbox (Only one of them will be run)
