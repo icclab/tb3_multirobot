@@ -25,6 +25,7 @@ from launch_ros.actions import Node
 from nav2_common.launch import HasNodeParams, RewrittenYaml
 
 
+
 def generate_launch_description():
     # Input parameters declaration
     namespace = LaunchConfiguration('namespace')
